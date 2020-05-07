@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * The framework to set up an alert. You can extend this if you want to create your own mechanism to send alerts!
  *
- * @author TheFuzzyFish
+ * @author TheFuzzyFsh
  */
 public abstract class alert {
     protected String sender;
