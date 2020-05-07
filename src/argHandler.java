@@ -9,6 +9,7 @@ import java.io.*;
 public class argHandler {
     private boolean doExit;
     private String version;
+    private double fanThreshold;
 
     /**
      * Constructs a new argHandler based on the argument array from main().
@@ -22,7 +23,8 @@ public class argHandler {
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 default:
-                    System.out.println("Unrecognized command at index " + i + ". Exiting.");
+                    System.out.println("Unrecognized flag: \"" + args[i] + "\". Exiting.");
+                    break;
                 case "-h":
                 case "-H":
                 case "--help":
@@ -34,6 +36,10 @@ public class argHandler {
                     System.out.println("IPMIwatch version " + version);
                     printAsset("legal.txt");
                     break;
+                case "-f":
+                case "-F":
+                case "--fan":
+                    doExit = false;
             }
         }
 
