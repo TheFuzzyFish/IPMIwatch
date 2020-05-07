@@ -14,4 +14,6 @@ Options:
     -v, -V, --version   Displays program version info
     -t, -T, --temp      Sets the threshold temperature (C) when action should be taken
     -f, -F, --fan       Sets the threshold fan speed (%) when action should be taken
-    --alert             Generates an alert should sensors exceed thresholds. This can currently only be a Discord Webhook URL. WARNING: This may create spam!
+    --alert             Generates an alert should sensors exceed thresholds.
+                        This can currently only be a Discord Webhook URL, but we may
+                        also support email addresses here in the future.

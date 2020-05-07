@@ -7,7 +7,7 @@ import java.io.IOException;
  *
  * @author TheFuzzyFish
  */
-public abstract class alert {
+public abstract class alertAbstract {
     protected String sender;
     protected String body;
 

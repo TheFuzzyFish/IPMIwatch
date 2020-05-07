@@ -16,7 +16,7 @@ import java.util.Set;
  *
  * @author TheFuzzyFish
  */
-public class alert_discord extends alert {
+public class discord extends alertAbstract {
     private String webhook;
 
     /**
@@ -24,7 +24,7 @@ public class alert_discord extends alert {
      *
      * @param url Discord Webhook API
      */
-    public alert_discord(String url) {
+    public discord(String url) {
         this.webhook = url;
     }
 
