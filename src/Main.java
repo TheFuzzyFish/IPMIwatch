@@ -78,7 +78,7 @@ public class Main {
         }
     }
 
-    public static void alert (String message){
+    public static void alert (String message) {
         try {
             Runtime.getRuntime().exec("/usr/local/share/scripts/notificator9000.sh " + message);
         } catch (IOException e) {
