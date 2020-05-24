@@ -1,5 +1,6 @@
-IPMIwatch is a program to monitor IPMI-capable sensors and act in real-time should something exceed a specified threshold.
-In addition, it has the ability to send alerts via the Discord Webhook API should you choose to select that option.
+IPMIwatch is a program to monitor IPMI-capable sensors and notify you in real-time should something exceed a specified threshold.
+It has the ability to send alerts via the Discord Webhook API should you choose to select that option. I made the alerting mechanism
+as modular as possible, so feel free to add a new alerting module if you're interested!
 
 Usage:
     java -jar IPMIwatch.jar <options>
