@@ -16,6 +16,7 @@ public class Main {
             return;
         }
 
+        boolean hasAlertBeenSentAlready = false;
         while (true) {
             /* Get the output of ipmitool */
             Process sensors = null;
@@ -62,10 +63,15 @@ public class Main {
                     String message = temps.size() + " temperatures just exceeded " + args[1] + "C with one reading as high as " + maxTemp + " degrees.";
                     System.out.println(message);
 
-                    if (options.doAlert()) {
+                    if (options.doAlert() && !hasAlertBeenSentAlready) {
                         System.out.println("Sending alert.");
                         alert(message);
+                        hasAlertBeenSentAlready = true;
+                    } else if (options.doAlert() && hasAlertBeenSentAlready) {
+                        System.out.println("Suppressing alert for consecutive reading.");
                     }
+                } else {
+                    hasAlertBeenSentAlready = false;
                 }
             }
 
@@ -105,15 +111,20 @@ public class Main {
                     String message = fans.size() + " fans just exceeded " + args[1] + "% with one reading as high as " + maxFan + "%";
                     System.out.println(message);
 
-                    if (options.doAlert()) {
+                    if (options.doAlert() && !hasAlertBeenSentAlready) {
                         System.out.println("Sending alert.");
                         alert(message);
+                        hasAlertBeenSentAlready = true;
+                    } else if (options.doAlert() && hasAlertBeenSentAlready) {
+                        System.out.println("Suppressing alert for consecutive reading.");
                     }
+                } else {
+                    hasAlertBeenSentAlready = false;
                 }
             }
 
             try {
-                Thread.sleep(5000);
+                Thread.sleep(2500); // Check sensors every 2.5 seconds
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
