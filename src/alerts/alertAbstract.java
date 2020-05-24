@@ -4,6 +4,7 @@ import java.io.IOException;
 
 /**
  * The framework to set up an alert. You can extend this if you want to create your own mechanism to send alerts!
+ * Be sure to remember to add its identifier as an enumerator in alertEnum as well.
  *
  * @author TheFuzzyFish
  */
