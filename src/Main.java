@@ -1,5 +1,7 @@
 import alerts.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -16,7 +18,8 @@ public class Main {
             return;
         }
 
-        boolean hasAlertBeenSentAlready = false;
+        boolean hasTempAlertBeenSentAlready = false;
+        boolean hasFanAlertBeenSentAlready = false;
         while (true) {
             /* Get the output of ipmitool */
             Process sensors = null;
@@ -28,104 +31,91 @@ public class Main {
             }
 
             Scanner scan = new Scanner(sensors.getInputStream()); // Start a scanner of that output for processing
+            String line = scan.nextLine(); // Scan one line at a time
 
-            /* Processes temperature data */
-            if (options.doMonTemp()) {
-                String line = scan.nextLine(); // Scan one line at a time
 
-                /* Loop through the output until you find a temperature sensor (which starts with "Temp ") */
-                while (!line.startsWith("Temp ")) {
+            ArrayList<Double> tempsAboveThreshold = new ArrayList<>(); // Used to store the temperature values from all sensors
+            ArrayList<Double> fansAboveThreshold = new ArrayList<>(); // Used to store the fan speed percents from all sensors
+            double maxTemp = -1; // Used to store the max temperature.
+            double maxFan = -1; // Used to store the max fan speed
+
+            while (scan.hasNext()) {
+                line = scan.nextLine();
+
+                /* Loop through the output until you find the next set of fan or temperature sensors */
+                while (!line.startsWith("Temp ") && !line.startsWith("Fan ") && scan.hasNext()) {
                     line = scan.nextLine();
                 }
 
-                /* Scan all temperatures above the threshold specified by the user into an ArrayList */
-                ArrayList<Double> temps = new ArrayList<>(); // Used to store the temperature values from all sensors
-                double maxTemp = -1; // Used to store the max temperature.
-                while (line.startsWith("Temp ")) {
+                if (options.doMonTemp() && line.startsWith("Temp ")) { // Scan all temperatures above the threshold specified by the user into an ArrayList
                     String[] values = line.split("\\|");
                     double thisTemp = Double.parseDouble(values[1].trim());
 
                     /* Adds the temperature to the ArrayList if it's above the user-defined threshold */
                     if (thisTemp > options.getTempThreshold()) {
-                        temps.add(thisTemp);
+                        tempsAboveThreshold.add(thisTemp);
 
                         /* Sets the max temperature if applicable */
                         if (thisTemp > maxTemp) {
                             maxTemp = thisTemp;
                         }
                     }
-
-                    line = scan.nextLine(); // Continue traversing the temperature sensors
-                }
-
-                /* If there were any temperatures above the user-defined threshold, determine action */
-                if (temps.size() > 0) {
-                    String message = temps.size() + " temperatures just exceeded " + args[1] + "C with one reading as high as " + maxTemp + " degrees.";
-                    System.out.println(message);
-
-                    if (options.doAlert() && !hasAlertBeenSentAlready) {
-                        System.out.println("Sending alert.");
-                        alert(message);
-                        hasAlertBeenSentAlready = true;
-                    } else if (options.doAlert() && hasAlertBeenSentAlready) {
-                        System.out.println("Suppressing alert for consecutive reading.");
-                    }
-                } else {
-                    hasAlertBeenSentAlready = false;
-                }
-            }
-
-            scan.reset(); // Start the scanner back at the top
-
-            /* Processes fan data */
-            if (options.doMonFan()) {
-                String line = scan.nextLine(); // Scan one line at a time
-
-                /* Loop through the output until you find a fan sensor (which starts with "Fan ") */
-                while (!line.startsWith("Fan ")) {
-                    line = scan.nextLine();
-                }
-
-                /* Scan all fan speeds above the threshold specified by the user into an ArrayList */
-                ArrayList<Double> fans = new ArrayList<>(); // Used to store the fan speed percents from all sensors
-                double maxFan = -1; // Used to store the max fan speed
-                while (line.startsWith("Fan ")) {
+                } else if (options.doMonFan() && line.startsWith("Fan ")) { // Scan all fans above the threshold specified by the user into an ArrayList
+                    /* Scan all fan speeds above the threshold specified by the user into an ArrayList */
                     String[] values = line.split("\\|");
                     double thisFan = Double.parseDouble(values[1].trim());
 
                     /* Adds the fan speeds to the ArrayList if it's above the user-defined threshold */
                     if (thisFan > options.getFanThreshold()) {
-                        fans.add(thisFan);
+                        fansAboveThreshold.add(thisFan);
 
                         /* Sets the max temperature if applicable */
                         if (thisFan > maxFan) {
                             maxFan = thisFan;
                         }
                     }
-
-                    line = scan.nextLine(); // Continue traversing the fan sensors
-                }
-
-                /* If there were any fan speeds above the user-defined threshold, determine action */
-                if (fans.size() > 0) {
-                    String message = fans.size() + " fans just exceeded " + args[1] + "% with one reading as high as " + maxFan + "%";
-                    System.out.println(message);
-
-                    if (options.doAlert() && !hasAlertBeenSentAlready) {
-                        System.out.println("Sending alert.");
-                        alert(message);
-                        hasAlertBeenSentAlready = true;
-                    } else if (options.doAlert() && hasAlertBeenSentAlready) {
-                        System.out.println("Suppressing alert for consecutive reading.");
-                    }
-                } else {
-                    hasAlertBeenSentAlready = false;
                 }
             }
 
+            /* If there were any temperatures above the user-defined threshold, determine action */
+            if (tempsAboveThreshold.size() > 0) {
+                String message = tempsAboveThreshold.size() + " temperatures just exceeded threshold with one reading as high as " + maxTemp + " degrees. ";
+                System.out.print(message);
+
+                if (options.doAlert() && !hasTempAlertBeenSentAlready) {
+                    System.out.print("Sending alert.");
+                    alert(message);
+                    hasTempAlertBeenSentAlready = true;
+                } else if (options.doAlert() && hasTempAlertBeenSentAlready) {
+                    System.out.print("Suppressing alert for consecutive reading.");
+                }
+                System.out.print("\n");
+            } else {
+                hasTempAlertBeenSentAlready = false;
+            }
+
+            /* If there were any fan speeds above the user-defined threshold, determine action */
+            if (fansAboveThreshold.size() > 0) {
+                String message = fansAboveThreshold.size() + " fans just exceeded threshold with one reading as high as " + maxFan + "%. ";
+                System.out.print(message);
+
+                if (options.doAlert() && !hasFanAlertBeenSentAlready) {
+                    System.out.print("Sending alert.");
+                    alert(message);
+                    hasFanAlertBeenSentAlready = true;
+                } else if (options.doAlert() && hasFanAlertBeenSentAlready) {
+                    System.out.print("Suppressing alert for consecutive reading.");
+                }
+                System.out.print("\n");
+            } else {
+                hasFanAlertBeenSentAlready = false;
+            }
+
+            // Check sensors every 2 seconds
             try {
-                Thread.sleep(2500); // Check sensors every 2.5 seconds
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
+                System.out.println("Something straight up broke. Literally no idea how this could've happened, you're on your own.");
                 e.printStackTrace();
             }
         }
@@ -133,9 +123,10 @@ public class Main {
 
     /**
      * Sends an alert, assumes that you already checked to see if an alert needs sent
+     *
      * @param message the message to send in the alert
      */
-    public static void alert (String message) {
+    public static void alert(String message) {
         switch (options.getAlertType()) {
             default:
             case unknown:

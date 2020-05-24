@@ -97,7 +97,8 @@ public class argHandler {
                     switch (this.alertType) {
                         default:
                         case unknown:
-                            System.out.println("I don't recognize \"" + args[i] + "\", perhaps you're trying to create an alert that is not yet supported?");
+                            System.out.println("I don't recognize \"" + args[i] + "\", perhaps you're trying to use an alert that is not yet supported?");
+                            this.doExit = true;
                             return;
                         case discord:
                             alert = new discord(args[i]);
