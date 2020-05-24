@@ -7,6 +7,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * IPMIwatch uses ipmitool to monitor your sensors and notify you if your temperatures or fans exceed a certain threshold
+ * https://github.com/TheFuzzyFish/IPMIwatch
+ *
+ * @author TheFuzzyFish
+ */
 public class Main {
     static argHandler options;
 

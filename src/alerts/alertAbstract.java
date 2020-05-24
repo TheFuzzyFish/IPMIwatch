@@ -3,8 +3,12 @@ package alerts;
 import java.io.IOException;
 
 /**
- * The framework to set up an alert. You can extend this if you want to create your own mechanism to send alerts!
- * Be sure to remember to add its identifier as an enumerator in alertEnum as well.
+ * So... you're looking to make an alert mechanism. Well, you're in the right place!
+ * Extend this class with your alert and override the send() method, along with any other method you may want to implement.
+ * You'll also want to add an identifier in the alertEnum.java file.
+ * Finally, add some substring unique to your alert address in argHandler.classifyAlert(). Then tool around in the main switch case "--alert" of the argHandler and its embedded switch statement. Make a new case for your enumerator to create a new alert of your subclass.
+ * Once you get it working, feel free to fork this repo, commit your changes, and submit a pull request with your feature, I'd be happy to integrate it into the official program.
+ * Good luck!
  *
  * @author TheFuzzyFish
  */
