@@ -32,7 +32,7 @@ Options:
                         also support email addresses here in the future. To use that,
                         enter the Webhook URL as the alert address
 </pre>
-<p>By default, IPMIwatch will simply print out to the console when a sensor exceeds your set threshold, but you can also redirect that to a log file with the <pre>--log</pre> flag or issue an <pre>--alert</pre>.</p>
+<p>By default, IPMIwatch will simply print out to the console when a sensor exceeds your set threshold, but you can also redirect that to a log file with the <b>--log</b> flag or issue an <b>--alert</b>.</p>
 <br>
 <h2>Alerts</h2>
 <p>So as of right now, the only alerting mechanism are Discord Webhooks. Why? Because that's what I use to monitor my infrastructure. If you use something else (like SMTP) and want to add that alerting mechanism, I did my best to make the alerts as modular as possible, and you're welcome to submit a pull request with your changes! A good place to get started is alertAbstract.java
