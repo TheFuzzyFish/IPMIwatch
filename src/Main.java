@@ -1,14 +1,12 @@
 import alerts.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-/**
- *
- */
 public class Main {
     static argHandler options;
 
@@ -52,7 +50,7 @@ public class Main {
                     double thisTemp = Double.parseDouble(values[1].trim());
 
                     /* Adds the temperature to the ArrayList if it's above the user-defined threshold */
-                    if (thisTemp > options.getTempThreshold()) {
+                    if (thisTemp >= options.getTempThreshold()) {
                         tempsAboveThreshold.add(thisTemp);
 
                         /* Sets the max temperature if applicable */
@@ -66,7 +64,7 @@ public class Main {
                     double thisFan = Double.parseDouble(values[1].trim());
 
                     /* Adds the fan speeds to the ArrayList if it's above the user-defined threshold */
-                    if (thisFan > options.getFanThreshold()) {
+                    if (thisFan >= options.getFanThreshold()) {
                         fansAboveThreshold.add(thisFan);
 
                         /* Sets the max temperature if applicable */
@@ -80,16 +78,20 @@ public class Main {
             /* If there were any temperatures above the user-defined threshold, determine action */
             if (tempsAboveThreshold.size() > 0) {
                 String message = tempsAboveThreshold.size() + " temperatures just exceeded threshold with one reading as high as " + maxTemp + " degrees. ";
-                System.out.print(message);
 
                 if (options.doAlert() && !hasTempAlertBeenSentAlready) {
-                    System.out.print("Sending alert.");
                     alert(message);
+                    message = message.concat("Alert sent.");
                     hasTempAlertBeenSentAlready = true;
                 } else if (options.doAlert() && hasTempAlertBeenSentAlready) {
-                    System.out.print("Suppressing alert for consecutive reading.");
+                    message = message.concat("Suppressing alert for consecutive reading.");
                 }
-                System.out.print("\n");
+
+                System.out.println(message);
+
+                if (options.doLog()) {
+                    log(message);
+                }
             } else {
                 hasTempAlertBeenSentAlready = false;
             }
@@ -97,16 +99,20 @@ public class Main {
             /* If there were any fan speeds above the user-defined threshold, determine action */
             if (fansAboveThreshold.size() > 0) {
                 String message = fansAboveThreshold.size() + " fans just exceeded threshold with one reading as high as " + maxFan + "%. ";
-                System.out.print(message);
 
                 if (options.doAlert() && !hasFanAlertBeenSentAlready) {
-                    System.out.print("Sending alert.");
                     alert(message);
+                    message = message.concat("Alert sent.");
                     hasFanAlertBeenSentAlready = true;
                 } else if (options.doAlert() && hasFanAlertBeenSentAlready) {
-                    System.out.print("Suppressing alert for consecutive reading.");
+                    message = message.concat("Suppressing alert for consecutive reading.");
                 }
-                System.out.print("\n");
+
+                System.out.println(message);
+
+                if (options.doLog()) {
+                    log(message);
+                }
             } else {
                 hasFanAlertBeenSentAlready = false;
             }
@@ -123,7 +129,6 @@ public class Main {
 
     /**
      * Sends an alert, assumes that you already checked to see if an alert needs sent
-     *
      * @param message the message to send in the alert
      */
     public static void alert(String message) {
@@ -151,6 +156,22 @@ public class Main {
                     System.out.println("Unknown error sending alert.");
                 }
                 break;
+        }
+    }
+
+    /**
+     * Logs the message, assumes that you already checked to see if the user wanted to log
+     * @param message the message you wanted to log
+     */
+    public static void log (String message) {
+        File f = new File(options.getLogPath());
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(f, true);
+            writer.write(LocalDateTime.now() + "\t-\t" + message + "\n");
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("Unknown error logging to " + options.getLogPath());
         }
     }
 }
